@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SectionView">
+        <attr name="descTextColor" format="color"/>
+        <attr name="descTextSize" format="dimension"/>
+        <attr name="criticalTextColor" format="color"/>
+        <attr name="criticalTextSize" format="dimension"/>
+        <attr name="sectionLineHeight" format="dimension"/>
+        <attr name="descTextMarginTop" format="dimension"/>
+        <attr name="criticalTextMarginBottom" format="dimension"/>
+        <attr name="currentPointColor" format="color"/>
+        <attr name="currentPointRadius" format="dimension"/>
+        <attr name="currentPointBorderColor" format="color"/>
+        <attr name="currentPointBorderWidth" format="dimension"/>
+    </declare-styleable>
+</resources>

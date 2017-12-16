@@ -1,13 +1,14 @@
 package com.het.sectionview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import java.text.DecimalFormat;
@@ -44,6 +45,35 @@ public class SectionView extends View {
     private int mCriticalTextColor = Color.GRAY;
     private Paint mCriticalPaint;
 
+    public void setSectionColors(int[] sectionColors) {
+        mSectionColors = sectionColors;
+    }
+
+    public void setCriticalValues(float[] criticalValues) {
+        mCriticalValues = criticalValues;
+    }
+
+    public void setSectionProportions(float[] sectionProportions) {
+        mSectionProportions = sectionProportions;
+    }
+
+    public void setSectionDesc(String[] sectionDesc) {
+        mSectionDesc = sectionDesc;
+    }
+
+    public void setCurrentPointValue(float currentPointValue) {
+        this.mCurrentPointValue = currentPointValue;
+    }
+
+    public float getCurrentPointValue() {
+        return mCurrentPointValue;
+    }
+
+    public void show() {
+        checkArgs();
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
     private float mSectionLineHeight = 20;
     private Paint mSectionLinePaint;
     private int mWidth;
@@ -52,8 +82,8 @@ public class SectionView extends View {
     private int mStartY;
     private int mLineWidth;
 
-    private float mTopTextMargin = 20;
-    private float mBottomTextMargin = 20;
+    private float mDescTextMarginTop = 20;
+    private float mCriticalTextMarginBottom = 20;
 
     private float mCurrentPointValue = 53;
     private int mCurrentPointColor = Color.parseColor("#ffff8800");
@@ -95,7 +125,6 @@ public class SectionView extends View {
         mStartY = getPaddingTop();
 
         mLineWidth = w - paddingLeft - paddingRight;
-        Log.d(TAG, "onSizeChanged: mStartX: " + mStartX + ", mLineWidth: " + mLineWidth);
 
         mCenterVertical = mHeight * 0.5f;
         createBorderPath(mWidth, mHeight, mSectionLineHeight, paddingLeft, paddingRight);
@@ -120,7 +149,19 @@ public class SectionView extends View {
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
-
+        final TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SectionView);
+        mDescTextColor = typedArray.getColor(R.styleable.SectionView_descTextColor, Color.BLACK);
+        mDescTextSize = typedArray.getDimensionPixelSize(R.styleable.SectionView_descTextSize, 36);
+        mCriticalTextColor = typedArray.getColor(R.styleable.SectionView_criticalTextColor, Color.GRAY);
+        mCriticalTextSize = typedArray.getDimensionPixelSize(R.styleable.SectionView_criticalTextSize, 36);
+        mSectionLineHeight = typedArray.getDimensionPixelSize(R.styleable.SectionView_sectionLineHeight, 20);
+        mDescTextMarginTop = typedArray.getDimensionPixelSize(R.styleable.SectionView_descTextMarginTop, 20);
+        mCriticalTextMarginBottom = typedArray.getDimensionPixelSize(R.styleable.SectionView_criticalTextMarginBottom, 20);
+        mCurrentPointColor = typedArray.getColor(R.styleable.SectionView_currentPointColor, Color.parseColor("#ffff8800"));
+        mCurrentPointRadius = typedArray.getDimensionPixelSize(R.styleable.SectionView_currentPointRadius, 15);
+        mCurrentPointBorderColor = typedArray.getColor(R.styleable.SectionView_currentPointBorderColor, Color.DKGRAY);
+        mCurrentPointBorderWidth = typedArray.getDimensionPixelSize(R.styleable.SectionView_currentPointBorderWidth, 2);
+        typedArray.recycle();
     }
 
     private void initPaint() {
@@ -166,7 +207,7 @@ public class SectionView extends View {
         int mode = MeasureSpec.getMode(measureSpec);
         int size = MeasureSpec.getSize(measureSpec);
         if (mode == MeasureSpec.AT_MOST) {
-            size = (int) (mSectionLineHeight + mTopTextMargin + mBottomTextMargin + getTextHeight(mSectionDesc[0], mDescPaint, mRect) + getTextHeight(getFormatText(mCriticalValues[mCriticalValues.length - 1], FORMAT_STRING_0), mCriticalPaint, mRect) + 0.5f);
+            size = (int) ((mSectionLineHeight + mDescTextMarginTop + mCriticalTextMarginBottom + getTextHeight(mSectionDesc[0], mDescPaint, mRect) + getTextHeight(getFormatText(mCriticalValues[mCriticalValues.length - 1], FORMAT_STRING_0), mCriticalPaint, mRect) * 1.1f) + 0.5f);
         }
         return size;
     }
@@ -211,7 +252,7 @@ public class SectionView extends View {
     private Rect mRect = new Rect();
 
     private void drawTopText(Canvas canvas, String text, float currentStartX, float currentEndX) {
-        canvas.drawText(text, (currentStartX + currentEndX - mDescPaint.measureText(text)) * 0.5f, mCenterVertical - mSectionLineHeight * 0.5f - mTopTextMargin, mDescPaint);
+        canvas.drawText(text, (currentStartX + currentEndX - mDescPaint.measureText(text)) * 0.5f, mCenterVertical - mSectionLineHeight * 0.5f - mDescTextMarginTop, mDescPaint);
     }
 
     private void drawBottomText(Canvas canvas, int position, float currentStartX) {
@@ -225,7 +266,7 @@ public class SectionView extends View {
         }
 
 //        mCriticalPaint.getTextBounds(text, 0, text.length(), mRect);
-        canvas.drawText(text, x, mCenterVertical + mSectionLineHeight * 0.5f + mBottomTextMargin + getTextHeight(text, mCriticalPaint, mRect), mCriticalPaint);
+        canvas.drawText(text, x, mCenterVertical + mSectionLineHeight * 0.5f + mCriticalTextMarginBottom + getTextHeight(text, mCriticalPaint, mRect), mCriticalPaint);
     }
 
     private float getTextHeight(String text, Paint paint, Rect rect) {
@@ -304,6 +345,36 @@ public class SectionView extends View {
             currentPercent += mSectionProportions[i];
         }
         throw new IllegalArgumentException("mCurrentPointValue is no between mCriticalValues, and mCurrentPointValue is " + mCurrentPointValue + ", mCriticalValues is " + Arrays.toString(mCriticalValues));
+    }
+
+    /**
+     * 检查各个参数是否正常(主要是检查几个数据是否正常)
+     */
+    private void checkArgs() {
+        if (mCriticalValues == null || mCriticalValues.length < 2) {
+            throw new IllegalArgumentException("the arg mCriticalValues is not available, please check first.  mCriticalValues is " + mCriticalValues);
+        }
+        if (mSectionColors == null || mSectionColors.length != mCriticalValues.length - 1) {
+            throw new IllegalArgumentException("the arg mSectionColors is not available, please check first.  mSectionColors is " + mSectionColors);
+        }
+        if (mSectionDesc == null || mSectionDesc.length != mCriticalValues.length - 1) {
+            throw new IllegalArgumentException("the arg mSectionDesc is not available, please check first.  mSectionDesc is " + mSectionDesc);
+        }
+
+        if (mSectionProportions != null) {
+            float sumSectionProportion = 0;
+            for (int i = 0; i < mSectionProportions.length; i++) {
+                float proportion = mSectionProportions[i];
+                if (proportion < 0 || proportion > 1) {
+                    throw new IllegalArgumentException("the arg mSectionProportions is not available, please check first.  mSectionProportions is " + Arrays.toString(mSectionProportions) + ", and mSectionProportions[" + i + "] is " + proportion);
+                }
+                sumSectionProportion += proportion;
+            }
+            if (sumSectionProportion != 1) {
+                throw new IllegalArgumentException("the arg mSectionProportions is not available, please check first.  mSectionProportions is " + Arrays.toString(mSectionProportions) + ", and sum of mSectionProportions is " + sumSectionProportion);
+            }
+        }
+
     }
 
 }

@@ -2,20 +2,47 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:section="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.het.sectionview.MainActivity">
 
     <com.het.sectionview.SectionView
+        android:id="@+id/sectionView"
         android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        section:criticalTextColor="#969696"
+        section:criticalTextMarginBottom="7dp"
+        section:criticalTextSize="12sp"
+        section:currentPointBorderColor="#dcdcdc"
+        section:currentPointBorderWidth="2px"
+        section:currentPointColor="@android:color/white"
+        section:currentPointRadius="4dp"
+        section:descTextColor="#969696"
+
+        section:descTextMarginTop="4dp"
+        section:descTextSize="12sp"
+        section:sectionLineHeight="4dp"/>
+
+
+    <Button
+        android:id="@+id/changeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="changeValue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sectionView"/>
 
 </android.support.constraint.ConstraintLayout>
