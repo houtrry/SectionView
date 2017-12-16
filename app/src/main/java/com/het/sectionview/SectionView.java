@@ -25,54 +25,49 @@ public class SectionView extends View {
 
     private static final String TAG = SectionView.class.getSimpleName();
 
+    /**
+     * 中间分段线条各段的颜色
+     */
     private int[] mSectionColors = {Color.RED, Color.BLUE, Color.GREEN, Color.parseColor("#ff33b5e5")};
 
+    /**
+     * 中间分段的分割值
+     */
     private float[] mCriticalValues = {0, 50, 70, 90, 100};
 
     /**
      * 如果mSectionProportions的数据为空, 则按等比例显示, 否则, 按mSectionProportions中提供的比例显示
      */
     private float[] mSectionProportions = {0.4f, 0.2f, 0.2f, 0.2f};
+
+    /**
+     * 中间分段的各段占比
+     */
 //    private float[] mSectionProportions;
 
+    /**
+     * 中间分段的描述, 位于分段线的上面
+     */
     private String[] mSectionDesc = {"较差", "一般", "良好", "优秀"};
 
-    private int mDescTextColor = Color.BLACK;
+    /**
+     * 描述的文字颜色
+     */
+    private int mDescTextColor = Color.BLACK;    /**
+     * 描述的文字大小
+     */
     private float mDescTextSize = 36;
     private Paint mDescPaint;
 
+    /**
+     * 分割值的文字大小
+     */
     private float mCriticalTextSize = 36;
+    /**
+     * 分割值的文字颜色
+     */
     private int mCriticalTextColor = Color.GRAY;
     private Paint mCriticalPaint;
-
-    public void setSectionColors(int[] sectionColors) {
-        mSectionColors = sectionColors;
-    }
-
-    public void setCriticalValues(float[] criticalValues) {
-        mCriticalValues = criticalValues;
-    }
-
-    public void setSectionProportions(float[] sectionProportions) {
-        mSectionProportions = sectionProportions;
-    }
-
-    public void setSectionDesc(String[] sectionDesc) {
-        mSectionDesc = sectionDesc;
-    }
-
-    public void setCurrentPointValue(float currentPointValue) {
-        this.mCurrentPointValue = currentPointValue;
-    }
-
-    public float getCurrentPointValue() {
-        return mCurrentPointValue;
-    }
-
-    public void show() {
-        checkArgs();
-        ViewCompat.postInvalidateOnAnimation(this);
-    }
 
     private float mSectionLineHeight = 20;
     private Paint mSectionLinePaint;
@@ -143,6 +138,38 @@ public class SectionView extends View {
         super.onDetachedFromWindow();
     }
 
+    public void setSectionColors(int[] sectionColors) {
+        mSectionColors = sectionColors;
+    }
+
+    public void setCriticalValues(float[] criticalValues) {
+        mCriticalValues = criticalValues;
+    }
+
+    public void setSectionProportions(float[] sectionProportions) {
+        mSectionProportions = sectionProportions;
+    }
+
+    public void setSectionDesc(String[] sectionDesc) {
+        mSectionDesc = sectionDesc;
+    }
+
+    public void setCurrentPointValue(float currentPointValue) {
+        this.mCurrentPointValue = currentPointValue;
+    }
+
+    public float getCurrentPointValue() {
+        return mCurrentPointValue;
+    }
+
+    /**
+     * 出发UI修改
+     */
+    public void show() {
+        checkArgs();
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
     private void init(Context context, AttributeSet attrs) {
         initAttrs(context, attrs);
         initPaint();
@@ -207,6 +234,7 @@ public class SectionView extends View {
         int mode = MeasureSpec.getMode(measureSpec);
         int size = MeasureSpec.getSize(measureSpec);
         if (mode == MeasureSpec.AT_MOST) {
+            //这里*1.1的原因: 获取的文字高度并不是文字实际显示的高度, 为了避免文字显示不全, 故作此处理
             size = (int) ((mSectionLineHeight + mDescTextMarginTop + mCriticalTextMarginBottom + getTextHeight(mSectionDesc[0], mDescPaint, mRect) + getTextHeight(getFormatText(mCriticalValues[mCriticalValues.length - 1], FORMAT_STRING_0), mCriticalPaint, mRect) * 1.1f) + 0.5f);
         }
         return size;
@@ -264,8 +292,6 @@ public class SectionView extends View {
         } else if (position > 0) {
             x -= textOffset;
         }
-
-//        mCriticalPaint.getTextBounds(text, 0, text.length(), mRect);
         canvas.drawText(text, x, mCenterVertical + mSectionLineHeight * 0.5f + mCriticalTextMarginBottom + getTextHeight(text, mCriticalPaint, mRect), mCriticalPaint);
     }
 
