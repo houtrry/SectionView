@@ -28,6 +28,9 @@ public class SectionView extends View {
 
     private float[] mCriticalValues = {0, 50, 70, 90, 100};
 
+    /**
+     * 如果mSectionProportions的数据为空, 则按等比例显示, 否则, 按mSectionProportions中提供的比例显示
+     */
     private float[] mSectionProportions = {0.4f, 0.2f, 0.2f, 0.2f};
 //    private float[] mSectionProportions;
 
@@ -77,6 +80,7 @@ public class SectionView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));
     }
 
     @Override
@@ -102,8 +106,6 @@ public class SectionView extends View {
         super.onDraw(canvas);
         drawLine(canvas);
         drawText(canvas);
-
-
         drawCurrentPoint(canvas);
     }
 
@@ -126,7 +128,6 @@ public class SectionView extends View {
         mDescPaint.setColor(mDescTextColor);
         mDescPaint.setTextSize(mDescTextSize);
 
-
         mCriticalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCriticalPaint.setTextSize(mCriticalTextSize);
         mCriticalPaint.setColor(mCriticalTextColor);
@@ -144,6 +145,32 @@ public class SectionView extends View {
         mCurrentPointBorderPaint.setStyle(Paint.Style.STROKE);
     }
 
+    private int measureWidth(int measureSpec) {
+        int mode = MeasureSpec.getMode(measureSpec);
+        int size = MeasureSpec.getSize(measureSpec);
+        float topTextWidth = 0;
+        float bottomTextWidth = 0;
+        if (mode == MeasureSpec.AT_MOST) {
+            for (int i = 0; i < mCriticalValues.length - 1; i++) {
+                topTextWidth += mDescPaint.measureText(mSectionDesc[i]);
+                bottomTextWidth += mCriticalPaint.measureText(getFormatText(mCriticalValues[i], FORMAT_STRING_0));
+            }
+            bottomTextWidth += mCriticalPaint.measureText(getFormatText(mCriticalValues[mCriticalValues.length - 1], FORMAT_STRING_0));
+            //文字总宽度的120%
+            size = (int) ((topTextWidth > bottomTextWidth ? topTextWidth : bottomTextWidth) * 1.2f + 0.5f);
+        }
+        return size;
+    }
+
+    private int measureHeight(int measureSpec) {
+        int mode = MeasureSpec.getMode(measureSpec);
+        int size = MeasureSpec.getSize(measureSpec);
+        if (mode == MeasureSpec.AT_MOST) {
+            size = (int) (mSectionLineHeight + mTopTextMargin + mBottomTextMargin + getTextHeight(mSectionDesc[0], mDescPaint, mRect) + getTextHeight(getFormatText(mCriticalValues[mCriticalValues.length - 1], FORMAT_STRING_0), mCriticalPaint, mRect) + 0.5f);
+        }
+        return size;
+    }
+
     private float mCurrentStartX = 0;
     private float mCurrentEndX = 0;
     private float mCenterVertical = 0;
@@ -154,14 +181,9 @@ public class SectionView extends View {
         mCurrentStartX = mStartX;
         mCurrentEndX = 0;
         for (int i = 0; i < mCriticalValues.length - 1; i++) {
-
             mSectionLinePaint.setColor(mSectionColors[i]);
-
             mCurrentEndX = mCurrentStartX + getLineWidth(i);
-
-            Log.d(TAG, "onDraw: mCurrentStartX: " + mCurrentStartX + ", mCurrentEndX: " + mCurrentEndX + ", i: " + i + ", " + getLineWidth(i));
             canvas.drawLine(mCurrentStartX, mCenterVertical, mCurrentEndX, mCenterVertical, mSectionLinePaint);
-
             mCurrentStartX = mCurrentEndX;
         }
         canvas.restore();
@@ -202,8 +224,13 @@ public class SectionView extends View {
             x -= textOffset;
         }
 
-        mCriticalPaint.getTextBounds(text, 0, text.length(), mRect);
-        canvas.drawText(text, x, mCenterVertical + mSectionLineHeight * 0.5f + mBottomTextMargin + mRect.height(), mCriticalPaint);
+//        mCriticalPaint.getTextBounds(text, 0, text.length(), mRect);
+        canvas.drawText(text, x, mCenterVertical + mSectionLineHeight * 0.5f + mBottomTextMargin + getTextHeight(text, mCriticalPaint, mRect), mCriticalPaint);
+    }
+
+    private float getTextHeight(String text, Paint paint, Rect rect) {
+        paint.getTextBounds(text, 0, text.length(), rect);
+        return rect.height();
     }
 
     /**
