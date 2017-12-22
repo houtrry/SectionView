@@ -53,7 +53,8 @@ public class SectionView extends View {
     /**
      * 描述的文字颜色
      */
-    private int mDescTextColor = Color.BLACK;    /**
+    private int mDescTextColor = Color.BLACK;
+    /**
      * 描述的文字大小
      */
     private float mDescTextSize = 36;
@@ -168,6 +169,9 @@ public class SectionView extends View {
     public void show() {
         checkArgs();
         ViewCompat.postInvalidateOnAnimation(this);
+        if (mOnValueChangeListener != null) {
+            mOnValueChangeListener.onValueChange(this, mCurrentPointValue);
+        }
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -225,7 +229,8 @@ public class SectionView extends View {
             }
             bottomTextWidth += mCriticalPaint.measureText(getFormatText(mCriticalValues[mCriticalValues.length - 1], FORMAT_STRING_0));
             //文字总宽度的120%
-            size = (int) ((topTextWidth > bottomTextWidth ? topTextWidth : bottomTextWidth) * 1.2f + 0.5f);
+            size = (int) (Math.max(topTextWidth, bottomTextWidth) * 1.2f + 0.5f);
+
         }
         return size;
     }
@@ -400,7 +405,26 @@ public class SectionView extends View {
                 throw new IllegalArgumentException("the arg mSectionProportions is not available, please check first.  mSectionProportions is " + Arrays.toString(mSectionProportions) + ", and sum of mSectionProportions is " + sumSectionProportion);
             }
         }
+    }
 
+    private OnValueChangeListener mOnValueChangeListener;
+
+    public void setOnValueChangeListener(OnValueChangeListener onValueChangeListener) {
+        mOnValueChangeListener = onValueChangeListener;
+    }
+
+    public interface OnValueChangeListener {
+
+        /**
+         * 默认方法, 在Android中需要1.Java8的支持; 2.需要Android的最小版本为24
+         * 由于第二条, 看来在实际项目中使用还是有问题的
+         *
+         * @param sectionView
+         * @param value
+         */
+        default void onValueChange(SectionView sectionView, float value) {
+
+        }
     }
 
 }
